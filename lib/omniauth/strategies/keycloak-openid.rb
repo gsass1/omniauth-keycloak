@@ -21,17 +21,18 @@ module OmniAuth
 
                     realm = options.client_options[:realm].nil? ? options.client_id : options.client_options[:realm]
                     site = options.client_options[:site]
+                    internal_site = options.client_options[:internal_site]
 
                     raise_on_failure = options.client_options.fetch(:raise_on_failure, false)
 
-                    config_url = URI.join(site, "/auth/realms/#{realm}/.well-known/openid-configuration")
+                    config_url = URI.join(internal_site, "/auth/realms/#{realm}/.well-known/openid-configuration")
 
                     log :debug, "Going to get Keycloak configuration. URL: #{config_url}"
                     response = Faraday.get config_url
                     if (response.status == 200)
                         json = MultiJson.load(response.body)
 
-                        @certs_endpoint = json["jwks_uri"]
+                        @certs_endpoint = json["jwks_uri"].gsub(site, internal_site)
                         @userinfo_endpoint = json["userinfo_endpoint"]
                         @authorize_url = URI(json["authorization_endpoint"]).path
                         @token_url = URI(json["token_endpoint"]).path
