@@ -33,9 +33,9 @@ module OmniAuth
                         json = MultiJson.load(response.body)
 
                         @certs_endpoint = json["jwks_uri"].gsub(site, internal_site)
-                        @userinfo_endpoint = json["userinfo_endpoint"]
-                        @authorize_url = URI(json["authorization_endpoint"]).path
-                        @token_url = URI(json["token_endpoint"]).path
+                        @userinfo_endpoint = json["userinfo_endpoint"].gsub(site, internal_site)
+                        @authorize_url = json["authorization_endpoint"].gsub(site, internal_site)
+                        @token_url = json["token_endpoint"].gsub(site, internal_site)
 
                         log_config(json)
 
@@ -81,11 +81,11 @@ module OmniAuth
             end
 
             def build_access_token
-                verifier = request.params["code"]
-                client.auth_code.get_token(verifier, 
-                    {:redirect_uri => callback_url.gsub(/\?.+\Z/, "")}
-                    .merge(token_params.to_hash(:symbolize_keys => true)), 
-                    deep_symbolize(options.auth_token_params))
+              verifier = request.params["code"]
+              client.auth_code.get_token(verifier, 
+                  {:redirect_uri => callback_url.gsub(/\?.+\Z/, "")}
+                  .merge(token_params.to_hash(:symbolize_keys => true)), 
+                  deep_symbolize(options.auth_token_params))
             end
 
             uid{ raw_info['sub'] }
