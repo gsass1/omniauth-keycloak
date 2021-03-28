@@ -34,7 +34,7 @@ module OmniAuth
 
                         @certs_endpoint = json["jwks_uri"].gsub(site, internal_site)
                         @userinfo_endpoint = json["userinfo_endpoint"].gsub(site, internal_site)
-                        @authorize_url = json["authorization_endpoint"].gsub(site, internal_site)
+                        @authorize_url = URI(json["authorization_endpoint"]).path
                         @token_url = json["token_endpoint"].gsub(site, internal_site)
 
                         log_config(json)
